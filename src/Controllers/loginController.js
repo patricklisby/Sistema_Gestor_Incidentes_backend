@@ -13,14 +13,16 @@ const register = async (req, res) => {
     );
     res.status(201).json({ message: "Se ha registrado correctamente" });
   } catch (error) {
-    console.error("Error registering user:", error);
-    res.status(500).send("Internal Server Error");
+    console.error("Error registrar usuario:", error);
+    res.status(500).send("Error servidor");
   }
 };
 
 const login = async (req, res) => {
   try {
+    console.log(req.body);
     const { ct_correo_institucional, ct_contrasena } = req.body;
+    console.log(ct_correo_institucional + " "+ ct_contrasena);
     const connection = await database.getConnection();
     const [user] = await connection.query(
       "SELECT * FROM t_usuarios WHERE ct_correo_institucional = ?",
@@ -39,7 +41,7 @@ const login = async (req, res) => {
 };
 
 
-
+/**
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -51,5 +53,6 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
+ */
 
-module.exports = { register, login, authenticateToken };
+module.exports = { register, login };//, authenticateToken

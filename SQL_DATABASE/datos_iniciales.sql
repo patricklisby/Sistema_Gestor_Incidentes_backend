@@ -8,4 +8,3 @@ insert into t_prioridades (ct_descripcion_prioridad) values ("Alto"),("Medio"),(
 insert into t_estados (ct_descripcion_estado, cn_id_sistema) values ("Registrado",1),("Asignado",1),("En revisión",1),("En reparación",1),("Pendiente de compra",1),("Terminado",1),("Aprobado",1),("Rechazado",1),("Cerrado",1);
 insert into t_roles (ct_descripcion_rol, cn_id_sistema) values ("Administrador",1),("Usuario",1),("Encargado",1),("Técnico",1),("Supervisor",1);
 insert into t_departamentos (ct_id_departamento, ct_descripcion_departamento) values ("1","Planta");
-insert into t_usuarios (ct_nombre_completo, ct_cedula, ct_descripcion_puesto, ct_celular, ct_id_departamento, ct_correo_institucional,ct_contrasena, cn_id_rol) values ("Patrick Lisby Córdoba","702830927", "Tester for app", "83582141","1","patrick.lisby@ucr.ac.cr","admin1234","5");

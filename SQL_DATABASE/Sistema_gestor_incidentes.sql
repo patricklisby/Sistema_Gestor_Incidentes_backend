@@ -77,6 +77,7 @@ CREATE TABLE `t_incidencias` (
   `ct_id_incidencia` varchar(255) not null primary key,
   `ct_titulo_incidencia` varchar(255),
   `ct_descripcion_incidencia` varchar(255) not null,
+  `ct_lugar` varchar(255) not null,
   `cf_fecha_completa_incidencia` datetime,
   `cn_id_estado` int,
   `ct_justificacion_incidencia` varchar(255),
@@ -92,7 +93,10 @@ CREATE TABLE `t_incidencias` (
   FOREIGN KEY (`cn_id_prioridad`) REFERENCES `t_prioridades`(`cn_id_prioridad`),
   FOREIGN KEY (`cn_id_categoria`)REFERENCES `t_categorias`(`cn_id_categoria`),
   FOREIGN KEY (`cn_id_riesgos`) REFERENCES `t_riesgos`(`cn_id_riesgo`),
-  FOREIGN KEY (`cn_id_afectacion`) REFERENCES `t_afectaciones`(`cn_id_afectacion`)
+  FOREIGN KEY (`cn_id_afectacion`) REFERENCES `t_afectaciones`(`cn_id_afectacion`),
+  FOREIGN KEY (`cn_id_imagen`) REFERENCES `t_imagenes`(`cn_id_imagen`),
+  FOREIGN KEY (`cn_id_usuario_registro`) REFERENCES `t_usuarios`(`cn_id_usuario`)
+  
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_registro_diagnosticos` (
