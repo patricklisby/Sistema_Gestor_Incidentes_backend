@@ -17,7 +17,7 @@ CREATE TABLE `t_roles` (
 
 CREATE TABLE `t_imagenes` (
   `cn_id_imagen`int primary key auto_increment not null,
-  `ct_dirrecion_imagen` varchar(255) not null
+  `ct_direccion_imagen` varchar(255) not null
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_pantallas` (
@@ -82,7 +82,7 @@ CREATE TABLE `t_incidencias` (
   `cn_id_estado` int,
   `ct_justificacion_incidencia` varchar(255),
   `cn_id_prioridad` int,
-  `cn_id_riesgos` int,
+  `cn_id_riesgo` int,
   `cn_id_afectacion` int,
   `cn_id_categoria` int,
   `cn_monto_compra_materiales` int(10),
@@ -92,7 +92,7 @@ CREATE TABLE `t_incidencias` (
   FOREIGN KEY (`cn_id_estado`) REFERENCES `t_estados`(`cn_id_estado`),
   FOREIGN KEY (`cn_id_prioridad`) REFERENCES `t_prioridades`(`cn_id_prioridad`),
   FOREIGN KEY (`cn_id_categoria`)REFERENCES `t_categorias`(`cn_id_categoria`),
-  FOREIGN KEY (`cn_id_riesgos`) REFERENCES `t_riesgos`(`cn_id_riesgo`),
+  FOREIGN KEY (`cn_id_riesgo`) REFERENCES `t_riesgos`(`cn_id_riesgo`),
   FOREIGN KEY (`cn_id_afectacion`) REFERENCES `t_afectaciones`(`cn_id_afectacion`),
   FOREIGN KEY (`cn_id_imagen`) REFERENCES `t_imagenes`(`cn_id_imagen`),
   FOREIGN KEY (`cn_id_usuario_registro`) REFERENCES `t_usuarios`(`cn_id_usuario`)

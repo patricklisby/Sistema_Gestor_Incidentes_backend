@@ -5,8 +5,10 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const database = require("./database");
-const loginController = require("./Controllers/loginController");
-const incidenciasController = require("./Controllers/incidenciasController");
+const loginController = require("./Controllers/login_Controller");
+const incidenciasController = require("./Controllers/incidencias_Controller");
+const imagen_controller = require('./Controllers/imagen_Controller');
+const diagnosticos_controller = require("./Controllers/diagnostico_Controller");
 
 dotenv.config();
 
@@ -37,7 +39,14 @@ app.post("/login", loginController.login);
 //Tomar todos los incidentes
 app.get("/mostrar_incidentes", incidenciasController.mostrar_incidencias_general);
 app.get("/mostrar_incidentes_por_tecnico", incidenciasController.mostrar_incidencias_por_tecnico);
-//app.get("/protected", loginController.authenticateToken, (req, res) => {
+app.post("/registrar_incidencia", incidenciasController.registrar_incidencias);
+app.get("/verificar_id", incidenciasController.verificar_id);
+//Imagenes
+app.post("/guardar_imagen", imagen_controller.guardar_imagen);
+//Diagnosticos
+app.get("/mostrar_diagnosticos", diagnosticos_controller.mostrar_diagnosticos_general);
+app.get("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_diagnosticos_por_tecnico);
+app.post("/registrar_diagnosticos", diagnosticos_controller.registrar_diagnosticos);
 
 
 app.get("/prueba", async (req, res) => {
