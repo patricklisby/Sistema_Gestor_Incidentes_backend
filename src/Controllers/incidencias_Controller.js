@@ -67,6 +67,37 @@ const mostrar_incidencias_por_tecnico = async (req, res) => {
     }
 };
 
+const mostrar_incidencias_por_id = async (req, res) => {
+    let connection;
+    try {
+        const { ct_id_incidencia } = req.body;
+        console.log(ct_id_incidencia);
+
+        // Obtener una conexión del pool
+        connection = await database.getConnection();
+
+        // Realizar la consulta a la base de datos
+        const result = await connection.query("SELECT * FROM t_incidencias where ct_id_incidencia = ?", [ct_id_incidencia]);
+
+        // Depuración: Verificar el contenido de los resultados
+        console.log("Resultados:", result);
+
+        // Devolver los resultados en formato JSON
+        res.json(result);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error");
+    } finally {
+        if (connection) {
+            try {
+                connection.release(); // Liberar la conexión
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
+
 const verificar_id = async () => {
     try {
         // Obtener una conexión del pool
@@ -132,5 +163,6 @@ module.exports = {
     mostrar_incidencias_general,
     mostrar_incidencias_por_tecnico,
     registrar_incidencias,
-    verificar_id
+    verificar_id,
+    mostrar_incidencias_por_id
 }

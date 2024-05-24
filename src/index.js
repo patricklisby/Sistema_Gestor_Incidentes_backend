@@ -39,6 +39,7 @@ app.post("/login", loginController.login);
 //Tomar todos los incidentes
 app.get("/mostrar_incidentes", incidenciasController.mostrar_incidencias_general);
 app.get("/mostrar_incidentes_por_tecnico", incidenciasController.mostrar_incidencias_por_tecnico);
+app.get("/mostrar_incidentes_por_id", incidenciasController.mostrar_incidencias_por_id);
 app.post("/registrar_incidencia", incidenciasController.registrar_incidencias);
 app.get("/verificar_id", incidenciasController.verificar_id);
 //Imagenes
