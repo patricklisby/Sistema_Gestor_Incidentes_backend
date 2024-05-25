@@ -69,6 +69,7 @@ CREATE TABLE `t_usuarios` (
   `ct_correo_institucional` varchar(255) not null,
   `ct_contrasena` varchar(255) not null,
   `cn_id_rol` int,
+  `ct_token` varchar(255),
   FOREIGN KEY (`ct_id_departamento`) REFERENCES `t_departamentos`(`ct_id_departamento`),
   FOREIGN KEY (`cn_id_rol`) REFERENCES `t_roles`(`cn_id_rol`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
