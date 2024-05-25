@@ -51,17 +51,17 @@ app.post("/logout", loginController.logout);
 
 
 // Rutas
-app.get("/mostrar_incidentes", auth, incidenciasController.mostrar_incidencias_general);
-app.get("/mostrar_incidencias_por_usuario", auth, incidenciasController.mostrar_incidencias_por_usuario);
-app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", auth, incidenciasController.mostrar_incidencias_por_id);
-app.post("/registrar_incidencia", auth, incidenciasController.registrar_incidencias);
-app.get("/verificar_id", auth, incidenciasController.verificar_id);
+app.get("/mostrar_incidentes", incidenciasController.mostrar_incidencias_general);
+app.get("/mostrar_incidencias_por_usuario", incidenciasController.mostrar_incidencias_por_usuario);
+app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", incidenciasController.mostrar_incidencias_por_id);
+app.post("/registrar_incidencia", incidenciasController.registrar_incidencias);
+app.get("/verificar_id", incidenciasController.verificar_id);
 //Imagenes
 app.post("/guardar_imagen", auth, imagen_controller.guardar_imagen);
 //Diagnosticos
-app.get("/mostrar_diagnosticos", auth, diagnosticos_controller.mostrar_diagnosticos_general);
-app.get("/mostrar_diagnosticos_por_tecnico", auth, diagnosticos_controller.mostrar_diagnosticos_por_tecnico);
-app.post("/registrar_diagnosticos", auth, diagnosticos_controller.registrar_diagnosticos);
+app.get("/mostrar_diagnosticos", diagnosticos_controller.mostrar_diagnosticos_general);
+app.get("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_diagnosticos_por_tecnico);
+app.post("/registrar_diagnosticos", diagnosticos_controller.registrar_diagnosticos);
 
 
 
