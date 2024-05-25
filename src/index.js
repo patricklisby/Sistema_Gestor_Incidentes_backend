@@ -38,8 +38,8 @@ app.post("/registrar", loginController.register);
 app.post("/login", loginController.login);
 //Tomar todos los incidentes
 app.get("/mostrar_incidentes", incidenciasController.mostrar_incidencias_general);
-app.get("/mostrar_incidentes_por_tecnico", incidenciasController.mostrar_incidencias_por_tecnico);
-app.get("/mostrar_incidentes_por_id", incidenciasController.mostrar_incidencias_por_id);
+app.get("/mostrar_incidencias_por_usuario", incidenciasController.mostrar_incidencias_por_usuario);
+app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", incidenciasController.mostrar_incidencias_por_id);
 app.post("/registrar_incidencia", incidenciasController.registrar_incidencias);
 app.get("/verificar_id", incidenciasController.verificar_id);
 //Imagenes

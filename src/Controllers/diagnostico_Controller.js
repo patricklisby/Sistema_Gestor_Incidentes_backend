@@ -78,7 +78,7 @@ const registrar_diagnosticos = async (req, res) => {
         connection = await database.getConnection();
 
         // Insertar la incidencia en la base de datos
-        const [result] = await connection.query("INSERT INTO t_registro_diagnosticos (cf_fecha_hora_diagnostico, cn_tiempo_estimado_reparacion, ct_diagnostico, cn_id_imagen, ct_observaciones, ct_id_incidencia, cn_id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        const result = await connection.query("INSERT INTO t_registro_diagnosticos (cf_fecha_hora_diagnostico, ct_diagnostico, cn_tiempo_estimado_reparacion, cn_id_imagen, ct_observaciones, ct_id_incidencia, cn_id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [cf_fecha_completa_incidencia, ct_diagnostico, cn_tiempo_estimado_reparacion, cn_id_imagen, ct_observaciones, ct_id_incidencia, cn_id_usuario]);
 
         //console.log(result);
