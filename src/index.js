@@ -61,6 +61,7 @@ app.post("/guardar_imagen", auth, imagen_controller.guardar_imagen);
 //Diagnosticos
 app.get("/mostrar_diagnosticos", diagnosticos_controller.mostrar_diagnosticos_general);
 app.get("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_diagnosticos_por_tecnico);
+app.get("/mostrar_diagnosticos_id_incidencia", diagnosticos_controller.mostrar_diagnosticos_por_id_incidencia);
 app.post("/registrar_diagnosticos", diagnosticos_controller.registrar_diagnosticos);
 
 

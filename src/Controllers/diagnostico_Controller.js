@@ -63,6 +63,31 @@ const mostrar_diagnosticos_por_tecnico = async (req, res) => {
     }
 };
 
+const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
+    let connection;
+    try {
+        const { ct_id_incidencia } = req.body;
+        console.log(ct_id_incidencia);
+        connection = await database.getConnection();
+        const result = await connection.query("SELECT * FROM t_registro_diagnosticos where ct_id_incidencia = ?", [ct_id_incidencia]);
+        console.log("Resultados:", result);
+        res.json(result);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error");
+    } finally {
+        if (connection) {
+            try {
+                connection.release(); // Liberar la conexión
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
+
+
+
 
 const registrar_diagnosticos = async (req, res) => {
     let connection;
@@ -92,5 +117,6 @@ const registrar_diagnosticos = async (req, res) => {
 module.exports = {
     mostrar_diagnosticos_general,
     mostrar_diagnosticos_por_tecnico,
+    mostrar_diagnosticos_por_id_incidencia,
     registrar_diagnosticos
 }
