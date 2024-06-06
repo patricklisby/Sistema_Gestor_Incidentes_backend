@@ -66,8 +66,16 @@ const mostrar_diagnosticos_por_tecnico = async (req, res) => {
 const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
     let connection;
     try {
-        const { ct_id_incidencia } = req.body;
-        console.log(ct_id_incidencia);
+       
+        let ct_id_incidencia;
+        if (req.params.ct_id_incidencia) {
+            ct_id_incidencia = req.params.ct_id_incidencia;
+        } else if (req.body.ct_id_incidencia) {
+            ct_id_incidencia = req.body.ct_id_incidencia;
+        } else {
+            throw new Error('ct_id_incidencia no encontrado en la URL ni en el cuerpo de la solicitud');
+        }
+        console.log("El id en el backend : "+ct_id_incidencia);
         connection = await database.getConnection();
         const result = await connection.query("SELECT * FROM t_registro_diagnosticos where ct_id_incidencia = ?", [ct_id_incidencia]);
         console.log("Resultados:", result);
