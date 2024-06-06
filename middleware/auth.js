@@ -9,6 +9,7 @@ module.exports = (req, res, next) => {
         return res.status(401).json({ error: 'Token de autorización no proporcionado' });
     }
     // Verificar el token JWT
+    // skipcq: JS-0045
     jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
         if (err) {
             return res.status(401).json({ error: 'Token de autorización inválido' });

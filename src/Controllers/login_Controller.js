@@ -27,8 +27,10 @@ const login = async (req, res) => {
       [ct_correo_institucional]
     );
     if (user && await bcrypt.compare(ct_contrasena, user.ct_contrasena)) {
-      
-      const token = jwt.sign({ userId: user.cn_id_usuario }, process.env.JWT_SECRET);
+      const token = jwt.sign(
+        { userId: user.cn_id_usuario, nombre: user.ct_nombre_completo },
+        process.env.JWT_SECRET
+      );
       await connection.query(
         "UPDATE t_usuarios SET ct_token = ? WHERE cn_id_usuario = ?",
         [token, user.cn_id_usuario]
@@ -50,7 +52,6 @@ const logout = async (req, res) => {
     }
     const userId = req.userId;
     const connection = await database.getConnection();
-
     await connection.query(
       "UPDATE t_usuarios SET ct_token = NULL WHERE cn_id_usuario = ?",
       [userId]
@@ -58,9 +59,9 @@ const logout = async (req, res) => {
     res.json({ message: "Logout exitoso" });
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
-
     res.status(500).send("Error interno del servidor");
   } finally {
+    // Cerrar la conexión si es necesario
   }
 };
 
