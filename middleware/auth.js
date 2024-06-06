@@ -1,22 +1,18 @@
-
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
-    // Verificar si se incluye un token en el encabezado de autorización
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-   
-    if (!token) {
-        return res.status(401).json({ error: 'Token de autorización no proporcionado' });
-    }
-    // Verificar el token JWT
-    // skipcq: JS-0045
-    jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
-        if (err) {
-            return res.status(401).json({ error: 'Token de autorización inválido' });
-        }
+  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
 
-        // Establecer req.user con la información del usuario autenticado
-        req.user = decodedToken;
-        next();
-    });
+  if (!token) {
+    return res.status(401).json({ error: 'Token de autorización no proporcionado' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      return res.status(401).json({ error: 'Token de autorización inválido' });
+    }
+
+    req.user = decodedToken;
+    next();
+  });
 };

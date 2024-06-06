@@ -46,12 +46,13 @@ const login = async (req, res) => {
 };
 
 const logout = async (req, res) => {
+  let connection;
   try {
-    if (!req.userId) {
+    if (!req.user || !req.user.userId) {
       return res.status(401).json({ message: "No autorizado" });
     }
-    const userId = req.userId;
-    const connection = await database.getConnection();
+    const userId = req.user.userId;
+    connection = await database.getConnection();
     await connection.query(
       "UPDATE t_usuarios SET ct_token = NULL WHERE cn_id_usuario = ?",
       [userId]
@@ -61,7 +62,9 @@ const logout = async (req, res) => {
     console.error("Error al cerrar sesión:", error);
     res.status(500).send("Error interno del servidor");
   } finally {
-    // Cerrar la conexión si es necesario
+    if (connection) {
+      connection.release();
+    }
   }
 };
 

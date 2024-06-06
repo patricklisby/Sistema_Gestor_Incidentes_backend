@@ -47,7 +47,7 @@ app.use(bodyParser.json());
 // Routes
 app.post("/registrar", loginController.register);
 app.post("/login", loginController.login);
-app.post("/logout", loginController.logout);
+app.post("/logout", auth, loginController.logout);
 
 
 // Rutas
