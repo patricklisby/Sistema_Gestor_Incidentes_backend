@@ -61,10 +61,11 @@ app.post("/guardar_imagen", imagenController.upload.single('image'), imagenContr
 app.get("/mostrar_imagenes", imagenController.mostrar_imagenes);
 
 // Rutas de diagnósticos
-app.get("/mostrar_diagnosticos", diagnosticosController.mostrar_diagnosticos_general);
-app.get("/mostrar_diagnosticos_por_tecnico", diagnosticosController.mostrar_diagnosticos_por_tecnico);
-app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", diagnosticosController.mostrar_diagnosticos_por_id_incidencia);
-app.post("/registrar_diagnosticos", diagnosticosController.registrar_diagnosticos);
+app.get("/mostrar_diagnosticos", auth, diagnosticosController.mostrar_diagnosticos_general);
+app.post("/mostrar_diagnosticos_por_tecnico", auth, diagnosticosController.mostrar_diagnosticos_por_tecnico);
+app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", auth, diagnosticosController.mostrar_diagnosticos_por_id_incidencia);
+app.post("/registrar_diagnosticos", auth, diagnosticosController.upload.single('image'), diagnosticosController.registrar_diagnosticos);
+
 
 app.get("/prueba", async (req, res) => {
   try {
