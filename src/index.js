@@ -4,10 +4,10 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const session = require('express-session');
-
 const auth = require('../middleware/auth');
 
 const database = require("./database");
+
 const loginController = require("./Controllers/login_Controller");
 const incidenciasController = require("./Controllers/incidencias_Controller");
 const imagenController = require('./Controllers/imagen_Controller');
@@ -53,7 +53,7 @@ app.post("/logout", auth, loginController.logout);
 app.get("/mostrar_incidentes", incidenciasController.mostrar_incidencias_general);
 app.get("/mostrar_incidencias_por_usuario", incidenciasController.mostrar_incidencias_por_usuario);
 app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", incidenciasController.mostrar_incidencias_por_id);
-app.post("/registrar_incidencia", incidenciasController.registrar_incidencias);
+app.post("/registrar_incidencia", incidenciasController.upload.single('image'), incidenciasController.registrar_incidencias);
 app.get("/verificar_id", incidenciasController.verificar_id);
 
 // Rutas de imágenes
