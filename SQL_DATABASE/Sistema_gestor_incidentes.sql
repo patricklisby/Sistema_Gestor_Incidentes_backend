@@ -17,7 +17,8 @@ CREATE TABLE `t_roles` (
 
 CREATE TABLE `t_imagenes` (
   `cn_id_imagen`int primary key auto_increment not null,
-  `ct_direccion_imagen` varchar(255) not null
+  `ct_direccion_imagen` varchar(255) not null,
+  `cb_imagen` LONGBLOB not null
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_pantallas` (
