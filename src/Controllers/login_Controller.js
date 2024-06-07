@@ -48,10 +48,9 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
   let connection;
   try {
-    if (!req.user || !req.user.userId) {
-      return res.status(401).json({ message: "No autorizado" });
-    }
-    const userId = req.user.userId;
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.userId;
     connection = await database.getConnection();
     await connection.query(
       "UPDATE t_usuarios SET ct_token = NULL WHERE cn_id_usuario = ?",
