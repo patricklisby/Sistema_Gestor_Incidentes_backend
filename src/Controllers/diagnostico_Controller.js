@@ -8,11 +8,21 @@ const mostrar_diagnosticos_general = async (req, res) => {
     let connection;
     try {
         connection = await database.getConnection();
-        const results = await connection.query("SELECT * FROM t_registro_diagnosticos");
-        res.json(results);
+        const results = await connection.query(
+            `SELECT d.*, img.cb_imagen 
+             FROM t_registro_diagnosticos d 
+             LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen`
+        );
+
+        const diagnosticos = results.map(diagnostico => ({
+            ...diagnostico,
+            cb_imagen: diagnostico.cb_imagen ? diagnostico.cb_imagen.toString('base64') : null
+        }));
+
+        res.json(diagnosticos);
     } catch (error) {
         console.error("Error:", error);
-        res.status(500).send("Server error");
+        res.status(500).send("Server error " + error.message);
     } finally {
         if (connection) {
             try {
@@ -29,11 +39,23 @@ const mostrar_diagnosticos_por_tecnico = async (req, res) => {
     try {
         const { cn_id_usuario } = req.body;
         connection = await database.getConnection();
-        const result = await connection.query("SELECT * FROM t_registro_diagnosticos WHERE cn_id_usuario = ?", [cn_id_usuario]);
-        res.json(result);
+        const results = await connection.query(
+            `SELECT d.*, img.cb_imagen 
+             FROM t_registro_diagnosticos d 
+             LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen 
+             WHERE d.cn_id_usuario = ?`, 
+             [cn_id_usuario]
+        );
+
+        const diagnosticos = results.map(diagnostico => ({
+            ...diagnostico,
+            cb_imagen: diagnostico.cb_imagen ? diagnostico.cb_imagen.toString('base64') : null
+        }));
+
+        res.json(diagnosticos);
     } catch (error) {
         console.error("Error:", error);
-        res.status(500).send("Server error");
+        res.status(500).send("Server error " + error.message);
     } finally {
         if (connection) {
             try {
@@ -57,11 +79,22 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
             throw new Error('ct_id_incidencia no encontrado en la URL ni en el cuerpo de la solicitud');
         }
         connection = await database.getConnection();
-        const result = await connection.query("SELECT * FROM t_registro_diagnosticos WHERE ct_id_incidencia = ?", [ct_id_incidencia]);
-        res.json(result);
+        const results = await connection.query(
+            `SELECT d.*, img.cb_imagen 
+             FROM t_registro_diagnosticos d
+             LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen
+             WHERE d.ct_id_incidencia = ?`, [ct_id_incidencia]
+        );
+
+        const diagnosticos = results.map(diagnostico => ({
+            ...diagnostico,
+            cb_imagen: diagnostico.cb_imagen ? diagnostico.cb_imagen.toString('base64') : null
+        }));
+
+        res.json(diagnosticos);
     } catch (error) {
         console.error("Error:", error);
-        res.status(500).send("Server error");
+        res.status(500).send("Server error " + error.message);
     } finally {
         if (connection) {
             try {
