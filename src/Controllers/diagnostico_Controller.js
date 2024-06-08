@@ -80,9 +80,13 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
         }
         connection = await database.getConnection();
         const results = await connection.query(
-            `SELECT d.*, img.cb_imagen 
+            `SELECT d.*, 
+                    img.cb_imagen, 
+                    u.ct_nombre_completo, 
+                    DATE_FORMAT(d.cf_fecha_hora_diagnostico, '%Y-%m-%d %H:%i:%s') AS fecha_formateada
              FROM t_registro_diagnosticos d
              LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen
+             LEFT JOIN t_usuarios u ON d.cn_id_usuario = u.cn_id_usuario
              WHERE d.ct_id_incidencia = ?`, [ct_id_incidencia]
         );
 

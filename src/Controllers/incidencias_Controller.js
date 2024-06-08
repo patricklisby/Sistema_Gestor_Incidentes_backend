@@ -81,10 +81,12 @@ const mostrar_incidencias_por_id = async (req, res) => {
 
         connection = await database.getConnection();
         const results = await connection.query(
-            `SELECT i.*, img.cb_imagen 
-             FROM t_incidencias i 
-             LEFT JOIN t_imagenes img ON i.cn_id_imagen = img.cn_id_imagen 
-             WHERE i.ct_id_incidencia = ?`, 
+            `SELECT i.*, img.cb_imagen, e.ct_descripcion_estado, u.ct_nombre_completo 
+             FROM t_incidencias i
+             LEFT JOIN t_imagenes img ON i.cn_id_imagen = img.cn_id_imagen
+             LEFT JOIN t_estados e ON i.cn_id_estado = e.cn_id_estado
+             LEFT JOIN t_usuarios u ON i.cn_id_usuario_registro = u.cn_id_usuario
+             WHERE i.ct_id_incidencia = ?`,
              [ct_id_incidencia]
         );
 
@@ -112,21 +114,25 @@ const verificar_id = async () => {
     try {
         const connection = await database.getConnection();
         const result = await connection.query("SELECT ct_id_incidencia FROM t_incidencias ORDER BY cf_fecha_completa_incidencia DESC LIMIT 1");
+        const currentYear = new Date().getFullYear();
         let newId;
+
         if (result.length > 0) {
             const lastId = result[0].ct_id_incidencia;
             const numericPart = parseInt(lastId.split('-')[1], 10);
             const incrementedPart = (numericPart + 1).toString().padStart(6, '0');
-            newId = `2024-${incrementedPart}`;
+            newId = `${currentYear}-${incrementedPart}`;
         } else {
-            newId = '2024-000001';
+            newId = `${currentYear}-000001`;
         }
+
         return newId;
     } catch (error) {
         console.error("Error:", error);
         throw error;
     }
 };
+
 
 const registrar_incidencias = async (req, res) => {
     let connection;
