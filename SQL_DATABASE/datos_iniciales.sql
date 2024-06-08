@@ -11,8 +11,3 @@ insert into t_departamentos (ct_id_departamento, ct_descripcion_departamento) va
 
 
 
-#quitar
-INSERT INTO `t_incidencias` (`ct_id_incidencia`, `ct_titulo_incidencia`, `ct_descripcion_incidencia`, `ct_lugar`, `cf_fecha_completa_incidencia`, `cn_id_estado`, `ct_justificacion_incidencia`, `cn_id_prioridad`, `cn_id_riesgo`, `cn_id_afectacion`, `cn_id_categoria`, `cn_monto_compra_materiales`, `cn_duracion_reparacion`, `cn_id_imagen`, `cn_id_usuario_registro`) 
-VALUES ('2024-000001', 'Daño tubería', 'Se daño la madre mae', 'Donde su maire', '2024-05-23 11:53:42', '1', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '1');
-INSERT INTO `t_imagenes` (`ct_direccion_imagen`) values ("example");
-INSERT INTO `t_registro_diagnosticos` (`cn_id_diagnostico`, `cf_fecha_hora_diagnostico`, `ct_diagnostico`, `cn_tiempo_estimado_reparacion`, `cn_id_imagen`, `ct_observaciones`, `ct_id_incidencia`, `cn_id_usuario`) VALUES (NULL, '2024-05-23 14:30:05', 'Es una prueba', NULL, '1', NULL, '2024-000001', '1');
