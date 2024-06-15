@@ -64,10 +64,8 @@ CREATE TABLE `t_usuarios` (
   `ct_id_departamento` varchar(255) not null,
   `ct_correo_institucional` varchar(255) not null,
   `ct_contrasena` varchar(255) not null,
-  `cn_id_rol` int,
   `ct_token` varchar(255),
-  FOREIGN KEY (`ct_id_departamento`) REFERENCES `t_departamentos`(`ct_id_departamento`),
-  FOREIGN KEY (`cn_id_rol`) REFERENCES `t_roles`(`cn_id_rol`)
+  FOREIGN KEY (`ct_id_departamento`) REFERENCES `t_departamentos`(`ct_id_departamento`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_imagenes` (
@@ -149,7 +147,7 @@ CREATE TABLE `t_bitacora_cambios_general` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_roles_por_usuario` (
-  `cn_id_rol_por_usuario`int not null primary key,
+  `cn_id_rol_por_usuario`int auto_increment primary key,
   `cn_id_usuario` int not null,
   `cn_id_rol` int not null,
   FOREIGN KEY (`cn_id_usuario`) REFERENCES `t_usuarios`(`cn_id_usuario`),

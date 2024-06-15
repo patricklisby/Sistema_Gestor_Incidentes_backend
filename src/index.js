@@ -8,10 +8,11 @@ const auth = require('../middleware/auth');
 
 const database = require("./database");
 
-const loginController = require("./Controllers/login_Controller");
-const incidenciasController = require("./Controllers/incidencias_Controller");
-const imagenController = require('./Controllers/imagen_Controller');
-const diagnosticosController = require("./Controllers/diagnostico_Controller");
+const login_controller = require("./Controllers/login_Controller");
+const incidencias_controller = require("./Controllers/incidencias_Controller");
+const imagen_controller = require('./Controllers/imagen_Controller');
+const diagnosticos_controller = require("./Controllers/diagnostico_Controller");
+const usuarios_controller = require("./Controllers/usuarios_Controller");
 
 const multer = require("multer");
 
@@ -50,28 +51,30 @@ app.use(morgan("dev"));
 app.use(bodyParser.json());
 
 // Routes
-app.post("/registrar", loginController.register);
-app.post("/login", loginController.login);
-app.post("/logout", auth, loginController.logout);
+app.post("/registrar", login_controller.register);
+app.post("/login", login_controller.login);
+app.post("/logout", auth, login_controller.logout);
 
 // Rutas de incidencias
-app.get("/mostrar_incidentes", incidenciasController.mostrar_incidencias_general);
-app.get("/mostrar_incidencias_por_usuario", incidenciasController.mostrar_incidencias_por_usuario);
-app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", incidenciasController.mostrar_incidencias_por_id);
-app.post('/registrar_incidencia', upload, incidenciasController.registrar_incidencias);
-app.get("/verificar_id", incidenciasController.verificar_id);
+app.get("/mostrar_incidentes", incidencias_controller.mostrar_incidencias_general);
+app.get("/mostrar_incidencias_por_usuario", incidencias_controller.mostrar_incidencias_por_usuario);
+app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", incidencias_controller.mostrar_incidencias_por_id);
+app.post('/registrar_incidencia', upload, incidencias_controller.registrar_incidencias);
+app.get("/verificar_id", incidencias_controller.verificar_id);
 
-app.post("/asignar_incidentes", incidenciasController.asignar_incidencias);
+app.post("/asignar_incidentes", incidencias_controller.asignar_incidencias);
+//Usuarios
+app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
 
 // Rutas de imágenes
-app.post("/guardar_imagen", imagenController.upload.single('image'), imagenController.guardar_imagen);
-app.get("/mostrar_imagenes", imagenController.mostrar_imagenes);
+app.post("/guardar_imagen", imagen_controller.upload.single('image'), imagen_controller.guardar_imagen);
+app.get("/mostrar_imagenes", imagen_controller.mostrar_imagenes);
 
 // Rutas de diagnósticos
-app.get("/mostrar_diagnosticos", diagnosticosController.mostrar_diagnosticos_general);
-app.post("/mostrar_diagnosticos_por_tecnico", diagnosticosController.mostrar_diagnosticos_por_tecnico);
-app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", diagnosticosController.mostrar_diagnosticos_por_id_incidencia);
-app.post("/registrar_diagnosticos", upload, diagnosticosController.registrar_diagnosticos);
+app.get("/mostrar_diagnosticos", diagnosticos_controller.mostrar_diagnosticos_general);
+app.post("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_diagnosticos_por_tecnico);
+app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", diagnosticos_controller.mostrar_diagnosticos_por_id_incidencia);
+app.post("/registrar_diagnosticos", upload, diagnosticos_controller.registrar_diagnosticos);
 
 
 app.get("/prueba", async (req, res) => {

@@ -226,7 +226,7 @@ const asignar_incidencias = async (req, res) => {
             INSERT INTO t_asignacion_incidencia_empleados (ct_id_incidencia, cn_id_usuario)
             VALUES (?, ?)
         `;
-        const [result] = await connection.query(query, [ct_id_incidencia, cn_id_usuario]);
+        const result = await connection.query(query, [ct_id_incidencia, cn_id_usuario]);
 
         await connection.commit();
         res.json(result);

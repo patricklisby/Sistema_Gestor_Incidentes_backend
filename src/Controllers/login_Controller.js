@@ -3,20 +3,63 @@ const jwt = require("jsonwebtoken");
 const database = require("../database");
 
 const register = async (req, res) => {
+  const connection = await database.getConnection();
+  await connection.beginTransaction();
   try {
-    const { ct_nombre_completo, ct_cedula, ct_descripcion_puesto, ct_celular, ct_id_departamento, ct_correo_institucional, ct_contrasena, cn_id_rol } = req.body;
+    const {
+      ct_nombre_completo,
+      ct_cedula,
+      ct_descripcion_puesto,
+      ct_celular,
+      ct_id_departamento,
+      ct_correo_institucional,
+      ct_contrasena,
+      cn_id_rol
+    } = req.body;
+
     const hashedPassword = await bcrypt.hash(ct_contrasena, 10);
-    const connection = await database.getConnection();
-    await connection.query(
-      "INSERT INTO t_usuarios (ct_nombre_completo, ct_cedula, ct_descripcion_puesto, ct_celular, ct_id_departamento, ct_correo_institucional, ct_contrasena, cn_id_rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [ct_nombre_completo, ct_cedula, ct_descripcion_puesto, ct_celular, ct_id_departamento, ct_correo_institucional, hashedPassword, cn_id_rol]
+
+    // Inserta el usuario en la tabla t_usuarios
+    const userResult = await connection.query(
+      "INSERT INTO t_usuarios (ct_nombre_completo, ct_cedula, ct_descripcion_puesto, ct_celular, ct_id_departamento, ct_correo_institucional, ct_contrasena) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [
+        ct_nombre_completo,
+        ct_cedula,
+        ct_descripcion_puesto,
+        ct_celular,
+        ct_id_departamento,
+        ct_correo_institucional,
+        hashedPassword
+      ]
     );
+
+    const cn_id_usuario = userResult.insertId;
+
+    // Verifica si cn_id_rol es un array y si tiene roles
+    if (Array.isArray(cn_id_rol) && cn_id_rol.length > 0) {
+      const roleQueries = cn_id_rol.map(rol =>
+        connection.query(
+          "INSERT INTO t_roles_por_usuario (cn_id_usuario, cn_id_rol) VALUES (?, ?)",
+          [cn_id_usuario, rol]
+        )
+      );
+      await Promise.all(roleQueries);
+    } else {
+      // Si no es un array o está vacío, devuelve un error
+      throw new Error("El campo cn_id_rol debe ser un array con al menos un rol.");
+    }
+
+    await connection.commit();
     res.status(201).json({ message: "Se ha registrado correctamente" });
   } catch (error) {
+    await connection.rollback();
     console.error("Error registrar usuario:", error);
     res.status(500).send("Error servidor");
+  } finally {
+    connection.release();
   }
 };
+
 
 const login = async (req, res) => {
   try {
