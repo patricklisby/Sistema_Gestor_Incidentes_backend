@@ -15,11 +15,6 @@ CREATE TABLE `t_roles` (
   foreign key(cn_id_sistema) references t_sistemas(cn_id_sistema)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
-CREATE TABLE `t_imagenes` (
-  `cn_id_imagen`int primary key auto_increment not null,
-  `ct_direccion_imagen` varchar(255) not null,
-  `cb_imagen` LONGBLOB not null
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_pantallas` (
   `cn_id_pantalla` int auto_increment primary key not null,
@@ -75,6 +70,12 @@ CREATE TABLE `t_usuarios` (
   FOREIGN KEY (`cn_id_rol`) REFERENCES `t_roles`(`cn_id_rol`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
+CREATE TABLE `t_imagenes` (
+  `cn_id_imagen`int primary key auto_increment not null,
+  `ct_direccion_imagen` varchar(255) not null,
+  `cb_imagen` LONGBLOB not null
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
 CREATE TABLE `t_incidencias` (
   `ct_id_incidencia` varchar(255) not null primary key,
   `ct_titulo_incidencia` varchar(255),
@@ -89,16 +90,22 @@ CREATE TABLE `t_incidencias` (
   `cn_id_categoria` int,
   `cn_monto_compra_materiales` int(10),
   `cn_duracion_reparacion` int(2),
-  `cn_id_imagen` int,
   `cn_id_usuario_registro` int,
   FOREIGN KEY (`cn_id_estado`) REFERENCES `t_estados`(`cn_id_estado`),
   FOREIGN KEY (`cn_id_prioridad`) REFERENCES `t_prioridades`(`cn_id_prioridad`),
   FOREIGN KEY (`cn_id_categoria`)REFERENCES `t_categorias`(`cn_id_categoria`),
   FOREIGN KEY (`cn_id_riesgo`) REFERENCES `t_riesgos`(`cn_id_riesgo`),
   FOREIGN KEY (`cn_id_afectacion`) REFERENCES `t_afectaciones`(`cn_id_afectacion`),
-  FOREIGN KEY (`cn_id_imagen`) REFERENCES `t_imagenes`(`cn_id_imagen`),
   FOREIGN KEY (`cn_id_usuario_registro`) REFERENCES `t_usuarios`(`cn_id_usuario`)
   
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+CREATE TABLE `t_imagenes_por_incidencias` (
+  `cn_id_imagenes_por_incidencias` int auto_increment not null primary key,
+  `ct_id_incidencia` varchar(255) not null,
+  `cn_id_imagen` int,
+  FOREIGN KEY (`ct_id_incidencia`) REFERENCES `t_incidencias`(`ct_id_incidencia`),
+  FOREIGN KEY (`cn_id_imagen`) REFERENCES `t_imagenes`(`cn_id_imagen`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_registro_diagnosticos` (
@@ -106,13 +113,19 @@ CREATE TABLE `t_registro_diagnosticos` (
   `cf_fecha_hora_diagnostico` datetime,
   `ct_diagnostico`varchar(255) not null,
   `cn_tiempo_estimado_reparacion` int(2),
-  `cn_id_imagen` int not null,
   `ct_observaciones` varchar(255),
   `ct_id_incidencia` varchar(255) not null,
   `cn_id_usuario` int not null,
-  foreign key (cn_id_imagen) references t_imagenes(cn_id_imagen),
   FOREIGN KEY (cn_id_usuario) REFERENCES t_usuarios(cn_id_usuario),
   FOREIGN KEY (ct_id_incidencia) REFERENCES t_incidencias(ct_id_incidencia)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
+
+CREATE TABLE `t_imagenes_por_diagnosticos` (
+  `cn_id_imagenes_por_diagnosticos` int auto_increment not null primary key,
+  `cn_id_diagnostico` int not null,
+  `cn_id_imagen` int,
+  FOREIGN KEY (`cn_id_diagnostico`) REFERENCES `t_registro_diagnosticos`(`cn_id_diagnostico`),
+  FOREIGN KEY (`cn_id_imagen`) REFERENCES `t_imagenes`(`cn_id_imagen`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_asignacion_incidencia_empleados` (

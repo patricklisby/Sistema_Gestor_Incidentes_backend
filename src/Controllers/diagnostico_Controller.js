@@ -2,7 +2,7 @@ const database = require("../database");
 const multer = require("multer");
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).array('images', 10); // Permite hasta 10 imágenes
 
 const mostrar_diagnosticos_general = async (req, res) => {
     let connection;
@@ -11,7 +11,8 @@ const mostrar_diagnosticos_general = async (req, res) => {
         const results = await connection.query(
             `SELECT d.*, img.cb_imagen 
              FROM t_registro_diagnosticos d 
-             LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen`
+             LEFT JOIN t_imagenes_por_diagnosticos ipd ON d.cn_id_diagnostico = ipd.cn_id_diagnostico
+             LEFT JOIN t_imagenes img ON ipd.cn_id_imagen = img.cn_id_imagen`
         );
 
         const diagnosticos = results.map(diagnostico => ({
@@ -42,7 +43,8 @@ const mostrar_diagnosticos_por_tecnico = async (req, res) => {
         const results = await connection.query(
             `SELECT d.*, img.cb_imagen 
              FROM t_registro_diagnosticos d 
-             LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen 
+             LEFT JOIN t_imagenes_por_diagnosticos ipd ON d.cn_id_diagnostico = ipd.cn_id_diagnostico
+             LEFT JOIN t_imagenes img ON ipd.cn_id_imagen = img.cn_id_imagen 
              WHERE d.cn_id_usuario = ?`, 
              [cn_id_usuario]
         );
@@ -79,23 +81,40 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
             throw new Error('ct_id_incidencia no encontrado en la URL ni en el cuerpo de la solicitud');
         }
         connection = await database.getConnection();
-        const results = await connection.query(
+        
+        const diagnosticosResult = await connection.query(
             `SELECT d.*, 
-                    img.cb_imagen, 
                     u.ct_nombre_completo, 
                     DATE_FORMAT(d.cf_fecha_hora_diagnostico, '%Y-%m-%d %H:%i:%s') AS fecha_formateada
              FROM t_registro_diagnosticos d
-             LEFT JOIN t_imagenes img ON d.cn_id_imagen = img.cn_id_imagen
              LEFT JOIN t_usuarios u ON d.cn_id_usuario = u.cn_id_usuario
              WHERE d.ct_id_incidencia = ?`, [ct_id_incidencia]
         );
 
-        const diagnosticos = results.map(diagnostico => ({
-            ...diagnostico,
-            cb_imagen: diagnostico.cb_imagen ? diagnostico.cb_imagen.toString('base64') : null
-        }));
+        if (diagnosticosResult.length === 0) {
+            return res.status(404).send("Diagnósticos no encontrados");
+        }
 
-        res.json(diagnosticos);
+        const diagnosticos = diagnosticosResult.map(async diagnostico => {
+            const imagenesResult = await connection.query(
+                `SELECT img.cb_imagen 
+                 FROM t_imagenes img
+                 LEFT JOIN t_imagenes_por_diagnosticos ipd ON img.cn_id_imagen = ipd.cn_id_imagen
+                 WHERE ipd.cn_id_diagnostico = ?`,
+                [diagnostico.cn_id_diagnostico]
+            );
+
+            const imagenes = imagenesResult.map(img => img.cb_imagen ? img.cb_imagen.toString('base64') : null);
+            
+            return {
+                ...diagnostico,
+                imagenes
+            };
+        });
+
+        const resolvedDiagnosticos = await Promise.all(diagnosticos);
+        
+        res.json(resolvedDiagnosticos);
     } catch (error) {
         console.error("Error:", error);
         res.status(500).send("Server error " + error.message);
@@ -110,36 +129,48 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
     }
 };
 
+
 const registrar_diagnosticos = async (req, res) => {
     let connection;
     try {
         const { ct_diagnostico, cn_tiempo_estimado_reparacion, ct_observaciones, ct_id_incidencia, cn_id_usuario } = req.body;
-        const { originalname, buffer } = req.file;
 
         const currentDate = new Date();
         const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
-        const cf_fecha_completa_incidencia = formattedDate;
+        const cf_fecha_hora_diagnostico = formattedDate;
 
         connection = await database.getConnection();
         await connection.beginTransaction();
 
-        // Insertar la imagen en la base de datos
-        const imageResult = await connection.query(
-            "INSERT INTO t_imagenes (ct_direccion_imagen, cb_imagen) VALUES (?, ?)",
-            [originalname, buffer]
-        );
-
-        const cn_id_imagen = imageResult.insertId;
-
         // Insertar el diagnóstico en la base de datos
-        const result = await connection.query(
-            "INSERT INTO t_registro_diagnosticos (cf_fecha_hora_diagnostico, ct_diagnostico, cn_tiempo_estimado_reparacion, cn_id_imagen, ct_observaciones, ct_id_incidencia, cn_id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [cf_fecha_completa_incidencia, ct_diagnostico, cn_tiempo_estimado_reparacion, cn_id_imagen, ct_observaciones, ct_id_incidencia, cn_id_usuario]
+        const diagnosticoResult = await connection.query(
+            "INSERT INTO t_registro_diagnosticos (cf_fecha_hora_diagnostico, ct_diagnostico, cn_tiempo_estimado_reparacion, ct_observaciones, ct_id_incidencia, cn_id_usuario) VALUES (?, ?, ?, ?, ?, ?)",
+            [cf_fecha_hora_diagnostico, ct_diagnostico, cn_tiempo_estimado_reparacion, ct_observaciones, ct_id_incidencia, cn_id_usuario]
         );
+
+        const cn_id_diagnostico = diagnosticoResult.insertId;
+
+        // Verifica si hay archivos de imagen en la solicitud
+        if (req.files && req.files.length > 0) {
+            for (let file of req.files) {
+                const imageResult = await connection.query(
+                    "INSERT INTO t_imagenes (ct_direccion_imagen, cb_imagen) VALUES (?, ?)",
+                    [file.originalname, file.buffer]
+                );
+
+                const cn_id_imagen = imageResult.insertId;
+
+                // Insertar el registro en t_imagenes_por_diagnosticos
+                await connection.query(
+                    "INSERT INTO t_imagenes_por_diagnosticos (cn_id_diagnostico, cn_id_imagen) VALUES (?, ?)",
+                    [cn_id_diagnostico, cn_id_imagen]
+                );
+            }
+        }
 
         await connection.commit();
 
-        res.json(result);
+        res.json({ message: 'Diagnóstico registrado exitosamente', diagnostico: diagnosticoResult });
     } catch (error) {
         if (connection) await connection.rollback();
         console.error("Error:", error);
@@ -154,6 +185,7 @@ const registrar_diagnosticos = async (req, res) => {
         }
     }
 };
+
 
 module.exports = {
     mostrar_diagnosticos_general,
