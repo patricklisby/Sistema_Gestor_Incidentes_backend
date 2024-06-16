@@ -14,6 +14,7 @@ const imagen_controller = require('./Controllers/imagen_Controller');
 const diagnosticos_controller = require("./Controllers/diagnostico_Controller");
 const usuarios_controller = require("./Controllers/usuarios_Controller");
 const rol_controller = require("./Controllers/rol_Controller");
+const admin_controller = require("./Controllers/admin_controller");
 
 const multer = require("multer");
 
@@ -67,6 +68,7 @@ app.post("/asignar_incidentes", incidencias_controller.asignar_incidencias);
 //Usuarios
 app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
 app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
+app.get("/mostrar_departamentos", admin_controller.mostrar_departamentos);
 
 // Rutas de imágenes
 app.post("/guardar_imagen", imagen_controller.upload.single('image'), imagen_controller.guardar_imagen);
