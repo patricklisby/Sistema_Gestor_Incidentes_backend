@@ -40,7 +40,35 @@ const mostrar_tecnicos = async (req, res) => {
     }
 };
 
+const mostrar_usuarios = async (req, res) => {
+    let connection;
+    try {
+        connection = await database.getConnection();
+        
+        const query = `
+            SELECT * from t_usuarios
+        `;
+        
+        const results = await connection.query(query);
+
+        res.json(results);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error " + error.message);
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+  };
+
+
 
 module.exports = {
-    mostrar_tecnicos
+    mostrar_tecnicos,
+    mostrar_usuarios
 };

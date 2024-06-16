@@ -13,6 +13,7 @@ const incidencias_controller = require("./Controllers/incidencias_Controller");
 const imagen_controller = require('./Controllers/imagen_Controller');
 const diagnosticos_controller = require("./Controllers/diagnostico_Controller");
 const usuarios_controller = require("./Controllers/usuarios_Controller");
+const rol_controller = require("./Controllers/rol_Controller");
 
 const multer = require("multer");
 
@@ -65,6 +66,7 @@ app.get("/verificar_id", incidencias_controller.verificar_id);
 app.post("/asignar_incidentes", incidencias_controller.asignar_incidencias);
 //Usuarios
 app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
+app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
 
 // Rutas de imágenes
 app.post("/guardar_imagen", imagen_controller.upload.single('image'), imagen_controller.guardar_imagen);
@@ -75,6 +77,9 @@ app.get("/mostrar_diagnosticos", diagnosticos_controller.mostrar_diagnosticos_ge
 app.post("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_diagnosticos_por_tecnico);
 app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", diagnosticos_controller.mostrar_diagnosticos_por_id_incidencia);
 app.post("/registrar_diagnosticos", upload, diagnosticos_controller.registrar_diagnosticos);
+
+//Ruta roles
+app.get("/mostrar_roles", rol_controller.mostrar_roles);
 
 
 app.get("/prueba", async (req, res) => {
