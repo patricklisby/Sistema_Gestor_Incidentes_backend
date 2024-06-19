@@ -168,6 +168,19 @@ const registrar_diagnosticos = async (req, res) => {
             }
         }
 
+        // Cambiar el estado de la incidencia al siguiente estado
+        const nextEstadoId = await connection.query(
+            "SELECT cn_id_estado FROM t_estados WHERE cn_id_estado > (SELECT cn_id_estado FROM t_incidencias WHERE ct_id_incidencia = ?) ORDER BY cn_id_estado LIMIT 1",
+            [ct_id_incidencia]
+        );
+
+        if (nextEstadoId.length > 0) {
+            await connection.query(
+                "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
+                [nextEstadoId[0].cn_id_estado, ct_id_incidencia]
+            );
+        }
+
         await connection.commit();
 
         res.json({ message: 'Diagnóstico registrado exitosamente', diagnostico: diagnosticoResult });
@@ -185,6 +198,7 @@ const registrar_diagnosticos = async (req, res) => {
         }
     }
 };
+
 
 
 module.exports = {

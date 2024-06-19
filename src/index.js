@@ -69,6 +69,7 @@ app.post("/asignar_incidentes", incidencias_controller.asignar_incidencias);
 app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
 app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
 app.get("/mostrar_departamentos", admin_controller.mostrar_departamentos);
+app.get("/mostrar_estados", admin_controller.mostrar_estados);
 
 // Rutas de imágenes
 app.post("/guardar_imagen", imagen_controller.upload.single('image'), imagen_controller.guardar_imagen);
@@ -80,6 +81,8 @@ app.post("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_di
 app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", diagnosticos_controller.mostrar_diagnosticos_por_id_incidencia);
 app.post("/registrar_diagnosticos", upload, diagnosticos_controller.registrar_diagnosticos);
 
+//Ruta tecnicos
+app.post("/cambiar_estado_por_tecnicos", admin_controller.cambiar_estado_por_tecnicos);  
 //Ruta roles
 app.get("/mostrar_roles", rol_controller.mostrar_roles);
 
