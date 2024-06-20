@@ -33,7 +33,6 @@ const mostrar_incidencias_general = async (req, res) => {
     }
 };
 
-
 const mostrar_incidencias_por_usuario = async (req, res) => {
     let connection;
     try {
@@ -130,8 +129,6 @@ const mostrar_incidencias_por_id = async (req, res) => {
     }
 };
 
-
-
 const verificar_id = async () => {
     try {
         const connection = await database.getConnection();
@@ -222,14 +219,40 @@ const asignar_incidencias = async (req, res) => {
         connection = await database.getConnection();
         await connection.beginTransaction();
 
+        // Asignar la incidencia al usuario
         const query = `
             INSERT INTO t_asignacion_incidencia_empleados (ct_id_incidencia, cn_id_usuario)
             VALUES (?, ?)
         `;
         const result = await connection.query(query, [ct_id_incidencia, cn_id_usuario]);
 
+        // Obtener el estado actual de la incidencia
+        const currentEstadoResult = await connection.query(
+            "SELECT cn_id_estado FROM t_incidencias WHERE ct_id_incidencia = ?",
+            [ct_id_incidencia]
+        );
+
+        if (currentEstadoResult.length === 0) {
+            throw new Error("Incidencia no encontrada");
+        }
+
+        const currentEstadoId = currentEstadoResult[0].cn_id_estado;
+
+        // Encontrar el siguiente estado
+        const nextEstadoResult = await connection.query(
+            "SELECT cn_id_estado FROM t_estados WHERE cn_id_estado > ? ORDER BY cn_id_estado LIMIT 1",
+            [currentEstadoId]
+        );
+
+        if (nextEstadoResult.length > 0) {
+            await connection.query(
+                "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
+                [nextEstadoResult[0].cn_id_estado, ct_id_incidencia]
+            );
+        }
+
         await connection.commit();
-        res.json(result);
+        res.json({ message: 'Incidencia asignada y estado actualizado exitosamente', result });
     } catch (error) {
         if (connection) await connection.rollback();
         console.error("Error durante la asignación de incidencias:", error);
@@ -244,6 +267,7 @@ const asignar_incidencias = async (req, res) => {
         }
     }
 };
+
 
 
 module.exports = {

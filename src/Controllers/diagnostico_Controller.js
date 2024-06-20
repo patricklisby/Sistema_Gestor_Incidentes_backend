@@ -168,16 +168,27 @@ const registrar_diagnosticos = async (req, res) => {
             }
         }
 
-        // Cambiar el estado de la incidencia al siguiente estado
-        const nextEstadoId = await connection.query(
-            "SELECT cn_id_estado FROM t_estados WHERE cn_id_estado > (SELECT cn_id_estado FROM t_incidencias WHERE ct_id_incidencia = ?) ORDER BY cn_id_estado LIMIT 1",
+        // Cambiar el estado de la incidencia al siguiente estado más cercano
+        const currentEstadoResult = await connection.query(
+            "SELECT cn_id_estado FROM t_incidencias WHERE ct_id_incidencia = ?",
             [ct_id_incidencia]
         );
 
-        if (nextEstadoId.length > 0) {
+        if (currentEstadoResult.length === 0) {
+            throw new Error("Incidencia no encontrada");
+        }
+
+        const currentEstadoId = currentEstadoResult[0].cn_id_estado;
+
+        const nextEstadoResult = await connection.query(
+            "SELECT cn_id_estado FROM t_estados WHERE cn_id_estado > ? ORDER BY cn_id_estado LIMIT 1",
+            [currentEstadoId]
+        );
+
+        if (nextEstadoResult.length > 0) {
             await connection.query(
                 "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
-                [nextEstadoId[0].cn_id_estado, ct_id_incidencia]
+                [nextEstadoResult[0].cn_id_estado, ct_id_incidencia]
             );
         }
 
@@ -187,7 +198,7 @@ const registrar_diagnosticos = async (req, res) => {
     } catch (error) {
         if (connection) await connection.rollback();
         console.error("Error:", error);
-        res.status(500).send("Server error " + error.message);
+        res.status(500).send("Server error: " + error.message);
     } finally {
         if (connection) {
             try {
@@ -198,7 +209,6 @@ const registrar_diagnosticos = async (req, res) => {
         }
     }
 };
-
 
 
 module.exports = {

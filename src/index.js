@@ -70,6 +70,7 @@ app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
 app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
 app.get("/mostrar_departamentos", admin_controller.mostrar_departamentos);
 app.get("/mostrar_estados", admin_controller.mostrar_estados);
+app.post('/cambiar_estado_supervisor', admin_controller.cambiar_estado_por_supervisor);
 
 // Rutas de imágenes
 app.post("/guardar_imagen", imagen_controller.upload.single('image'), imagen_controller.guardar_imagen);
