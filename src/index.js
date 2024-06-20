@@ -71,6 +71,7 @@ app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
 app.get("/mostrar_departamentos", admin_controller.mostrar_departamentos);
 app.get("/mostrar_estados", admin_controller.mostrar_estados);
 app.post('/cambiar_estado_supervisor', admin_controller.cambiar_estado_por_supervisor);
+app.get("/reporte_carga_trabajo", admin_controller.reporte_carga_trabajo);
 
 // Rutas de imágenes
 app.post("/guardar_imagen", imagen_controller.upload.single('image'), imagen_controller.guardar_imagen);

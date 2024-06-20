@@ -157,15 +157,92 @@ const cambiar_estado_por_supervisor = async (req, res) => {
     }
 };
 
+const reporte_carga_trabajo = async (req, res) => {
+    let connection;
+    try {
+        connection = await database.getConnection();
+        await connection.beginTransaction();
 
+        // Obtener los usuarios con rol 4
+        const usuarios_rol = await connection.query(
+            `SELECT u.cn_id_usuario, u.ct_nombre_completo, u.ct_descripcion_puesto
+            FROM t_usuarios u
+            JOIN t_roles_por_usuario ur ON u.cn_id_usuario = ur.cn_id_usuario
+            WHERE ur.cn_id_rol = 4`
+        );
 
+        if (usuarios_rol.length === 0) {
+            throw new Error("No se encontraron usuarios con rol 4");
+        }
 
+        const report = [];
 
+        for (let usuario of usuarios_rol) {
+            // Contar las incidencias asignadas a cada usuario
+            const asignaciones = await connection.query(
+                `SELECT COUNT(*) as total_incidencias
+                FROM t_asignacion_incidencia_empleados
+                WHERE cn_id_usuario = ?`,
+                [usuario.cn_id_usuario]
+            );
+
+            // Calcular el tiempo promedio estimado de reparación
+            const tiempoPromedioResult = await connection.query(
+                `SELECT AVG(cn_tiempo_estimado_reparacion) as promedio_tiempo_reparacion
+                FROM t_registro_diagnosticos
+                WHERE cn_id_usuario = ?`,
+                [usuario.cn_id_usuario]
+            );
+
+            let promedioTiempoReparacionHoras = 0;
+            if (tiempoPromedioResult.length > 0 && tiempoPromedioResult[0].promedio_tiempo_reparacion !== null) {
+                const tiempoPromedio = tiempoPromedioResult[0].promedio_tiempo_reparacion;
+                // Convertir el tiempo promedio de minutos a horas si es necesario
+                promedioTiempoReparacionHoras = (tiempoPromedio / 60).toFixed(2);
+            }
+
+            // Obtener incidencias terminadas por usuario (estado 6)
+            const incidenciasTerminadasUsuario = await connection.query(
+                `SELECT COUNT(*) as total_incidencias_terminadas
+                FROM t_incidencias i
+                JOIN t_asignacion_incidencia_empleados aie ON i.ct_id_incidencia = aie.ct_id_incidencia
+                WHERE aie.cn_id_usuario = ? AND i.cn_id_estado = 6`,
+                [usuario.cn_id_usuario]
+            );
+
+            const totalIncidenciasTerminadasUsuario = incidenciasTerminadasUsuario[0].total_incidencias_terminadas;
+
+            report.push({
+                nombre: usuario.ct_nombre_completo,
+                puesto: usuario.ct_descripcion_puesto,
+                total_incidencias: asignaciones[0].total_incidencias,
+                promedio_tiempo_reparacion: promedioTiempoReparacionHoras,
+                total_incidencias_terminadas: totalIncidenciasTerminadasUsuario
+            });
+        }
+
+        await connection.commit();
+        res.json(report);
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error("Error:", error);
+        res.status(500).send("Server error: " + error.message);
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
 
 
 module.exports = {
     mostrar_departamentos,
     cambiar_estado_por_tecnicos,
     mostrar_estados,
-    cambiar_estado_por_supervisor
+    cambiar_estado_por_supervisor,
+    reporte_carga_trabajo
 };
