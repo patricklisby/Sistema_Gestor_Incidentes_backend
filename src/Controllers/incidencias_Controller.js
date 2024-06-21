@@ -200,6 +200,12 @@ const registrar_incidencias = async (req, res) => {
             [ct_id_incidencia, ct_titulo_incidencia, ct_descripcion_incidencia, ct_lugar, cf_fecha_completa_incidencia, cn_id_estado, cn_id_usuario_registro]
         );
 
+        // Insertar el cambio de estado en la bitácora
+        await connection.query(
+            "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+            [cn_id_estado, cn_id_usuario_registro, ct_id_incidencia]
+        );
+
         // Verifica si hay archivos de imagen en la solicitud
         if (req.files && req.files.length > 0) {
             for (let file of req.files) {
@@ -271,6 +277,12 @@ const editar_incidencia = async (req, res) => {
             throw new Error('No se encontró la incidencia o no hubo cambios');
         }
 
+        // Insertar el cambio de estado en la bitácora
+        await connection.query(
+            "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+            [cn_id_estado, cn_id_usuario_registro, ct_id_incidencia]
+        );
+
         await connection.commit();
 
         res.json({ message: 'Incidencia editada exitosamente', incidencia: incidenciaResult });
@@ -288,6 +300,7 @@ const editar_incidencia = async (req, res) => {
         }
     }
 };
+
 
 /**
  * Función para asignar incidencias a un usuario.
@@ -331,9 +344,16 @@ const asignar_incidencias = async (req, res) => {
         );
 
         if (nextEstadoResult.length > 0) {
+            const newEstadoId = nextEstadoResult[0].cn_id_estado;
             await connection.query(
                 "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
-                [nextEstadoResult[0].cn_id_estado, ct_id_incidencia]
+                [newEstadoId, ct_id_incidencia]
+            );
+
+            // Insertar el cambio de estado en la bitácora
+            await connection.query(
+                "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+                [newEstadoId, cn_id_usuario, ct_id_incidencia]
             );
         }
 

@@ -206,9 +206,16 @@ const registrar_diagnosticos = async (req, res) => {
         );
 
         if (nextEstadoResult.length > 0) {
+            const newEstadoId = nextEstadoResult[0].cn_id_estado;
             await connection.query(
                 "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
-                [nextEstadoResult[0].cn_id_estado, ct_id_incidencia]
+                [newEstadoId, ct_id_incidencia]
+            );
+
+            // Insertar el cambio de estado en la bitácora
+            await connection.query(
+                "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+                [newEstadoId, cn_id_usuario, ct_id_incidencia]
             );
         }
 
@@ -229,6 +236,7 @@ const registrar_diagnosticos = async (req, res) => {
         }
     }
 };
+
 
 module.exports = {
     mostrar_diagnosticos_general,

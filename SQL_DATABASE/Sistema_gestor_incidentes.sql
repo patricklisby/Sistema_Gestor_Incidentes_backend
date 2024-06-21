@@ -19,8 +19,8 @@ CREATE TABLE `t_roles` (
 CREATE TABLE `t_pantallas` (
   `cn_id_pantalla` int auto_increment primary key not null,
   `ct_titulo_pantalla` varchar(255) not null,
-  `cn_id_rol` int not null,
-  foreign key (cn_id_rol) references t_roles(cn_id_rol)
+  `cn_id_sistema` int not null,
+  foreign key (cn_id_sistema) references t_sistemas(cn_id_sistema)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_estados` (
@@ -135,11 +135,10 @@ CREATE TABLE `t_asignacion_incidencia_empleados` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci;
 
 CREATE TABLE `t_bitacora_cambios_general` (
-  `ct_cod_bitacora_cambio` varchar(255) not null primary key,
+  `ct_id_bitacora_cambio` int auto_increment not null primary key,
   `ct_id_incidencia` varchar(255) not null,
   `cn_id_estado_nuevo` int not null,
   `cn_id_usuario_del_cambio` int not null,
-  `cn_id_pantalla` int not null,
   `cf_fecha_hora_cambio` datetime,
   FOREIGN KEY (`cn_id_estado_nuevo`) REFERENCES `t_estados`(`cn_id_estado`),
   FOREIGN KEY (`ct_id_incidencia`) REFERENCES `t_incidencias`(`ct_id_incidencia`),
@@ -156,7 +155,7 @@ CREATE TABLE `t_roles_por_usuario` (
 
 
 CREATE TABLE `t_bitacora_cambios_estado` (
-  `ct_cod_bitacora` int not null primary key,
+  `ct_cod_bitacora` int auto_increment not null primary key,
   `cn_id_estado` int not null,
   `cn_id_usuario` int not null,
   `ct_referencia_incidencia` varchar(255) not null,

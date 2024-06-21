@@ -8,6 +8,18 @@ insert into t_prioridades (ct_descripcion_prioridad) values ("Alto"),("Medio"),(
 insert into t_estados (ct_descripcion_estado, cn_id_sistema) values ("Registrado",1),("Asignado",1),("En revisión",1),("En reparación",1),("Pendiente de compra",1),("Terminado",1),("Aprobado",1),("Rechazado",1),("Cerrado",1);
 insert into t_roles (ct_descripcion_rol, cn_id_sistema) values ("Administrador",1),("Usuario",1),("Encargado",1),("Técnico",1),("Supervisor",1);
 insert into t_departamentos (ct_id_departamento, ct_descripcion_departamento) values ("1","Planta");
+insert into t_sistemas (ct_descripcion_sistema) values ("SGI");
+
+INSERT INTO t_pantallas (ct_titulo_pantalla, cn_id_sistema) VALUES
+('Inicio de sesión', 1),
+('Gestión de usuarios', 1),
+('Pantalla de inicio', 1),
+('Asignación de Incidencias', 1),
+('Registro de incidencias', 1),
+('Diagnóstico de incidencias', 1),
+('Reportes por carga de Trabajo', 1),
+('Reportes de Trabajo por Categoria', 1),
+('Reportes de Trabajo por bitácoras', 1);
 
 
 
