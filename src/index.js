@@ -59,10 +59,11 @@ app.post("/logout", auth, login_controller.logout);
 
 // Rutas de incidencias
 app.get("/mostrar_incidentes", incidencias_controller.mostrar_incidencias_general);
-app.get("/mostrar_incidencias_por_usuario", incidencias_controller.mostrar_incidencias_por_usuario);
+app.get("/mostrar_incidencias_por_usuario/:cn_id_usuario?", incidencias_controller.mostrar_incidencias_por_usuario);
 app.get("/mostrar_incidentes_por_id/:ct_id_incidencia?", incidencias_controller.mostrar_incidencias_por_id);
 app.post('/registrar_incidencia', upload, incidencias_controller.registrar_incidencias);
 app.get("/verificar_id", incidencias_controller.verificar_id);
+app.put('/editar_incidencia/:ct_id_incidencia', incidencias_controller.editar_incidencia); // Ruta para editar incidencias
 
 app.post("/asignar_incidentes", incidencias_controller.asignar_incidencias);
 //Usuarios
@@ -70,6 +71,10 @@ app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
 app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
 app.get("/mostrar_departamentos", admin_controller.mostrar_departamentos);
 app.get("/mostrar_estados", admin_controller.mostrar_estados);
+app.get("/mostrar_prioridades", admin_controller.mostrar_prioridades);
+app.get("/mostrar_riesgos", admin_controller.mostrar_riesgos);
+app.get("/mostrar_afectaciones", admin_controller.mostrar_afectaciones);
+app.get("/mostrar_categorias", admin_controller.mostrar_categorias);
 app.post('/cambiar_estado_supervisor', admin_controller.cambiar_estado_por_supervisor);
 app.get("/reporte_carga_trabajo", admin_controller.reporte_carga_trabajo);
 

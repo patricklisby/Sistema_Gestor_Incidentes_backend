@@ -1,9 +1,15 @@
 const database = require("../database");
 const multer = require("multer");
 
+// Configuración de almacenamiento en memoria para multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('images', 10); // Permite hasta 10 imágenes
 
+/**
+ * Función para mostrar todos los diagnósticos generales.
+ * Realiza una consulta a la base de datos para obtener todos los diagnósticos,
+ * junto con las imágenes asociadas.
+ */
 const mostrar_diagnosticos_general = async (req, res) => {
     let connection;
     try {
@@ -35,6 +41,11 @@ const mostrar_diagnosticos_general = async (req, res) => {
     }
 };
 
+/**
+ * Función para mostrar diagnósticos por técnico.
+ * Recibe el ID del usuario a través del cuerpo de la solicitud y realiza una consulta
+ * para obtener todos los diagnósticos registrados por ese técnico, incluyendo las imágenes.
+ */
 const mostrar_diagnosticos_por_tecnico = async (req, res) => {
     let connection;
     try {
@@ -69,6 +80,11 @@ const mostrar_diagnosticos_por_tecnico = async (req, res) => {
     }
 };
 
+/**
+ * Función para mostrar diagnósticos por ID de incidencia.
+ * Recibe el ID de la incidencia a través de los parámetros o el cuerpo de la solicitud.
+ * Realiza una consulta para obtener los diagnósticos asociados a la incidencia y las imágenes.
+ */
 const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
     let connection;
     try {
@@ -129,7 +145,11 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
     }
 };
 
-
+/**
+ * Función para registrar un nuevo diagnóstico.
+ * Recibe los datos del diagnóstico a través del cuerpo de la solicitud y guarda el diagnóstico
+ * en la base de datos. También guarda las imágenes asociadas si las hay.
+ */
 const registrar_diagnosticos = async (req, res) => {
     let connection;
     try {
@@ -209,7 +229,6 @@ const registrar_diagnosticos = async (req, res) => {
         }
     }
 };
-
 
 module.exports = {
     mostrar_diagnosticos_general,

@@ -1,16 +1,20 @@
 const database = require("../database");
 const multer = require("multer");
+
+// Configuración de multer para manejar la carga de imágenes en memoria
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('images', 10); // Permite hasta 10 imágenes
 
+/**
+ * Controlador para mostrar los departamentos
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const mostrar_departamentos = async (req, res) => {
     let connection;
     try {
         connection = await database.getConnection();
-        const results = await connection.query(
-            `SELECT * from t_departamentos`
-        );
-
+        const results = await connection.query("SELECT * from t_departamentos");
         res.json(results);
     } catch (error) {
         console.error("Error:", error);
@@ -26,14 +30,16 @@ const mostrar_departamentos = async (req, res) => {
     }
 };
 
+/**
+ * Controlador para mostrar los estados
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const mostrar_estados = async (req, res) => {
     let connection;
     try {
         connection = await database.getConnection();
-        const results = await connection.query(
-            `SELECT * from t_estados`
-        );
-
+        const results = await connection.query("SELECT * from t_estados");
         res.json(results);
     } catch (error) {
         console.error("Error:", error);
@@ -49,6 +55,90 @@ const mostrar_estados = async (req, res) => {
     }
 };
 
+const mostrar_prioridades = async (req, res) => {
+    let connection;
+    try {
+        connection = await database.getConnection();
+        const results = await connection.query("SELECT * from t_prioridades");
+        res.json(results);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error " + error.message);
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
+
+const mostrar_riesgos = async (req, res) => {
+    let connection;
+    try {
+        connection = await database.getConnection();
+        const results = await connection.query("SELECT * from t_riesgos");
+        res.json(results);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error " + error.message);
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
+const mostrar_categorias = async (req, res) => {
+    let connection;
+    try {
+        connection = await database.getConnection();
+        const results = await connection.query("SELECT * from t_categorias");
+        res.json(results);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error " + error.message);
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
+
+const mostrar_afectaciones = async (req, res) => {
+    let connection;
+    try {
+        connection = await database.getConnection();
+        const results = await connection.query("SELECT * from t_afectaciones");
+        res.json(results);
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error " + error.message);
+    } finally {
+        if (connection) {
+            try {
+                connection.release();
+            } catch (releaseError) {
+                console.error("Error al liberar conexión:", releaseError);
+            }
+        }
+    }
+};
+
+/**
+ * Controlador para cambiar el estado de una incidencia por parte de técnicos
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const cambiar_estado_por_tecnicos = async (req, res) => {
     let connection;
     try {
@@ -116,7 +206,11 @@ const cambiar_estado_por_tecnicos = async (req, res) => {
     }
 };
 
-
+/**
+ * Controlador para cambiar el estado de una incidencia por parte de supervisores
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const cambiar_estado_por_supervisor = async (req, res) => {
     let connection;
     try {
@@ -157,6 +251,11 @@ const cambiar_estado_por_supervisor = async (req, res) => {
     }
 };
 
+/**
+ * Controlador para generar un reporte de carga de trabajo
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const reporte_carga_trabajo = async (req, res) => {
     let connection;
     try {
@@ -238,11 +337,14 @@ const reporte_carga_trabajo = async (req, res) => {
     }
 };
 
-
 module.exports = {
     mostrar_departamentos,
     cambiar_estado_por_tecnicos,
     mostrar_estados,
+    mostrar_prioridades,
+    mostrar_afectaciones,
+    mostrar_categorias,
+    mostrar_riesgos,
     cambiar_estado_por_supervisor,
     reporte_carga_trabajo
 };

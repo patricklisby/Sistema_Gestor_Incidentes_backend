@@ -2,6 +2,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const database = require("../database");
 
+/**
+ * Controlador para registrar un nuevo usuario.
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const register = async (req, res) => {
   const connection = await database.getConnection();
   await connection.beginTransaction();
@@ -17,6 +22,7 @@ const register = async (req, res) => {
       cn_id_rol
     } = req.body;
 
+    // Hash de la contraseña del usuario
     const hashedPassword = await bcrypt.hash(ct_contrasena, 10);
 
     // Inserta el usuario en la tabla t_usuarios
@@ -60,7 +66,11 @@ const register = async (req, res) => {
   }
 };
 
-
+/**
+ * Controlador para iniciar sesión.
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const login = async (req, res) => {
   try {
     const { ct_correo_institucional, ct_contrasena } = req.body;
@@ -69,23 +79,28 @@ const login = async (req, res) => {
       "SELECT * FROM t_usuarios WHERE ct_correo_institucional = ?",
       [ct_correo_institucional]
     );
+
+    // Verifica las credenciales del usuario
     if (user && await bcrypt.compare(ct_contrasena, user.ct_contrasena)) {
       const token = jwt.sign(
         { userId: user.cn_id_usuario, nombre: user.ct_nombre_completo },
         process.env.JWT_SECRET
       );
+
+      // Actualiza el token del usuario en la base de datos
       await connection.query(
         "UPDATE t_usuarios SET ct_token = ? WHERE cn_id_usuario = ?",
         [token, user.cn_id_usuario]
       );
+
+      // Obtiene los roles del usuario
       const roles = await connection.query(
         `SELECT tru.cn_id_rol FROM t_roles_por_usuario tru 
          WHERE tru.cn_id_usuario = ?`,
         [user.cn_id_usuario]
       );
-      console.log(roles);
 
-      res.json({ token , roles: roles});
+      res.json({ token, roles: roles });
     } else {
       res.status(401).send("Credenciales inválidas");
     }
@@ -95,6 +110,11 @@ const login = async (req, res) => {
   }
 };
 
+/**
+ * Controlador para cerrar sesión.
+ * @param {Request} req - Objeto de solicitud HTTP
+ * @param {Response} res - Objeto de respuesta HTTP
+ */
 const logout = async (req, res) => {
   let connection;
   try {
@@ -102,10 +122,13 @@ const logout = async (req, res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
     connection = await database.getConnection();
+
+    // Borra el token del usuario en la base de datos
     await connection.query(
       "UPDATE t_usuarios SET ct_token = NULL WHERE cn_id_usuario = ?",
       [userId]
     );
+
     res.json({ message: "Logout exitoso" });
   } catch (error) {
     console.error("Error al cerrar sesión:", error);

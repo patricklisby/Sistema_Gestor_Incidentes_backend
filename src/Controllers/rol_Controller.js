@@ -1,14 +1,19 @@
 const database = require("../database");
 
+/**
+ * Función para mostrar todos los roles.
+ * Realiza una consulta a la base de datos para obtener todos los roles.
+ *
+ * @param {object} req - Objeto de solicitud HTTP.
+ * @param {object} res - Objeto de respuesta HTTP.
+ */
 const mostrar_roles = async (req, res) => {
     let connection;
     try {
         connection = await database.getConnection();
-        
         const query = `
-            SELECT * from t_roles
+            SELECT * FROM t_roles
         `;
-        
         const results = await connection.query(query);
         res.json(results);
     } catch (error) {
@@ -24,8 +29,6 @@ const mostrar_roles = async (req, res) => {
         }
     }
 };
-
-
 
 module.exports = {
     mostrar_roles,
