@@ -78,7 +78,14 @@ const login = async (req, res) => {
         "UPDATE t_usuarios SET ct_token = ? WHERE cn_id_usuario = ?",
         [token, user.cn_id_usuario]
       );
-      res.json({ token });
+      const roles = await connection.query(
+        `SELECT tru.cn_id_rol FROM t_roles_por_usuario tru 
+         WHERE tru.cn_id_usuario = ?`,
+        [user.cn_id_usuario]
+      );
+      console.log(roles);
+
+      res.json({ token , roles: roles});
     } else {
       res.status(401).send("Credenciales inválidas");
     }
