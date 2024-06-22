@@ -145,7 +145,7 @@ const mostrar_afectaciones = async (req, res) => {
 const cambiar_estado_por_tecnicos = async (req, res) => {
     let connection;
     try {
-        const { ct_id_incidencia } = req.body;
+        const { ct_id_incidencia , cn_id_usuario} = req.body;
         connection = await database.getConnection();
         await connection.beginTransaction();
 
