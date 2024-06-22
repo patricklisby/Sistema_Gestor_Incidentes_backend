@@ -1,6 +1,9 @@
 const database = require("../database");
 const multer = require("multer");
 
+const emailService = require('../emailService');
+const { obtener_email_usuario } = require('./usuarios_Controller');
+
 // Configuración de multer para manejar la carga de imágenes en memoria
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('images', 10); // Permite hasta 10 imágenes
@@ -189,6 +192,12 @@ const cambiar_estado_por_tecnicos = async (req, res) => {
             [nextEstadoId, ct_id_incidencia]
         );
 
+        // Insertar registro en la bitácora de cambios de estado
+        await connection.query(
+            "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+            [nextEstadoId, cn_id_usuario, ct_id_incidencia]
+        );
+
         await connection.commit();
         res.json({ message: 'Estado de la incidencia actualizado exitosamente', nextEstadoId });
     } catch (error) {
@@ -214,7 +223,7 @@ const cambiar_estado_por_tecnicos = async (req, res) => {
 const cambiar_estado_por_supervisor = async (req, res) => {
     let connection;
     try {
-        const { ct_id_incidencia, cn_id_estado } = req.body; // Asegúrate de que cn_id_estado esté en el cuerpo de la solicitud
+        const { ct_id_incidencia, cn_id_estado, cn_id_usuario } = req.body; // Asegúrate de que cn_id_estado esté en el cuerpo de la solicitud
         connection = await database.getConnection();
         await connection.beginTransaction();
 
@@ -233,6 +242,37 @@ const cambiar_estado_por_supervisor = async (req, res) => {
             "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
             [cn_id_estado, ct_id_incidencia]
         );
+        // Insertar registro en la bitácora de cambios de estado
+        await connection.query(
+            "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+            [cn_id_estado, cn_id_usuario, ct_id_incidencia]
+        );
+
+        const userEmail = await obtener_email_usuario(cn_id_usuario);
+        if (userEmail) {
+            let subject, text, html;
+            if (cn_id_estado == 9) {
+                await emailService.sendEmail(
+                    userEmail,
+                    'La incidencia cumple con los requisitos de calidad y procede a ser cerrada.',
+                    `La incidencia cumple con los requisitos de calidad y procede a ser cerrada.`,
+                    ` <p>Estimado Usuario,</p>
+                <p>Nos complace informarle que la incidencia <strong>cumple con los requisitos de calidad</strong> y procede a ser <strong>cerrada</strong>.</p>
+                <p>Saludos cordiales,</p>
+                <p>El equipo de soporte técnico</p>`
+                );
+            } else if (cn_id_estado == 2) {
+                await emailService.sendEmail(
+                    userEmail,
+                    'Notificación estado diagnóstico',
+                    `La incidencia ha sido rechazada por controles de calidad.`,
+                    `<p>Estimado Usuario,</p>
+                <p>Le informamos que la incidencia ha sido <strong>rechazada por controles de calidad</strong>. Por favor, revise y realice las correcciones necesarias.</p>
+                <p>Saludos cordiales,</p>
+                <p>El equipo de soporte técnico</p>`
+                );
+            }
+        }
 
         await connection.commit();
         res.json({ message: 'Estado de la incidencia actualizado exitosamente', cn_id_estado });

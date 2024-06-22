@@ -355,37 +355,18 @@ const asignar_incidencias = async (req, res) => {
         `;
         const result = await connection.query(query, [ct_id_incidencia, cn_id_usuario]);
 
-        // Obtener el estado actual de la incidencia
-        const currentEstadoResult = await connection.query(
-            "SELECT cn_id_estado FROM t_incidencias WHERE ct_id_incidencia = ?",
-            [ct_id_incidencia]
+        // Asignar el estado 2 (Asignado) a la incidencia
+        const newEstadoId = 2;
+        await connection.query(
+            "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
+            [newEstadoId, ct_id_incidencia]
         );
 
-        if (currentEstadoResult.length === 0) {
-            throw new Error("Incidencia no encontrada");
-        }
-
-        const currentEstadoId = currentEstadoResult[0].cn_id_estado;
-
-        // Encontrar el siguiente estado
-        const nextEstadoResult = await connection.query(
-            "SELECT cn_id_estado FROM t_estados WHERE cn_id_estado > ? ORDER BY cn_id_estado LIMIT 1",
-            [currentEstadoId]
+        // Insertar el cambio de estado en la bitácora
+        await connection.query(
+            "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
+            [newEstadoId, cn_id_usuario, ct_id_incidencia]
         );
-
-        if (nextEstadoResult.length > 0) {
-            const newEstadoId = nextEstadoResult[0].cn_id_estado;
-            await connection.query(
-                "UPDATE t_incidencias SET cn_id_estado = ? WHERE ct_id_incidencia = ?",
-                [newEstadoId, ct_id_incidencia]
-            );
-
-            // Insertar el cambio de estado en la bitácora
-            await connection.query(
-                "INSERT INTO t_bitacora_cambios_estado (cn_id_estado, cn_id_usuario, ct_referencia_incidencia) VALUES (?, ?, ?)",
-                [newEstadoId, cn_id_usuario, ct_id_incidencia]
-            );
-        }
 
         await connection.commit();
         const userEmail = await obtener_email_usuario(cn_id_usuario);
@@ -410,6 +391,7 @@ const asignar_incidencias = async (req, res) => {
         }
     }
 };
+
 
 module.exports = {
     mostrar_incidencias_general,
