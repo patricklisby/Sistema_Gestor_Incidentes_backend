@@ -41,6 +41,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Configuración de las cabeceras CORS para las respuestas a solicitudes preflight
+app.options('*', cors());
+
 // Configurar express-session
 app.use(session({
   secret: 'this_is_a_secure_key', // Cambia esto a una clave segura
