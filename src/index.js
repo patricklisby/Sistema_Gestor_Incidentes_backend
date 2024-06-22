@@ -35,10 +35,7 @@ app.use(cors({
     } else {
       callback(new Error('Not allowed by CORS'));
     }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  }
 }));
 
 // Configuración de las cabeceras CORS para las respuestas a solicitudes preflight
@@ -72,8 +69,7 @@ app.get("/verificar_id", incidencias_controller.verificar_id);
 app.put('/editar_incidencia/:ct_id_incidencia', incidencias_controller.editar_incidencia); // Ruta para editar incidencias
 
 app.post("/asignar_incidentes", incidencias_controller.asignar_incidencias);
-
-// Usuarios
+//Usuarios
 app.get("/mostrar_tecnicos", usuarios_controller.mostrar_tecnicos);
 app.get("/mostrar_usuarios", usuarios_controller.mostrar_usuarios);
 app.get("/mostrar_departamentos", admin_controller.mostrar_departamentos);
@@ -95,11 +91,11 @@ app.post("/mostrar_diagnosticos_por_tecnico", diagnosticos_controller.mostrar_di
 app.get("/mostrar_diagnosticos_id_incidencia/:ct_id_incidencia?", diagnosticos_controller.mostrar_diagnosticos_por_id_incidencia);
 app.post("/registrar_diagnosticos", upload, diagnosticos_controller.registrar_diagnosticos);
 
-// Ruta tecnicos
+//Ruta tecnicos
 app.post("/cambiar_estado_por_tecnicos", admin_controller.cambiar_estado_por_tecnicos);  
-
-// Ruta roles
+//Ruta roles
 app.get("/mostrar_roles", rol_controller.mostrar_roles);
+
 
 app.get("/prueba", async (req, res) => {
   try {
