@@ -1,6 +1,9 @@
 const database = require("../database");
 const multer = require("multer");
 
+const emailService = require('../emailService');
+const { obtener_email_usuario } = require('./usuarios_Controller');
+
 // Configuración de almacenamiento en memoria para multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('images', 10); // Permite hasta 10 imágenes
@@ -56,8 +59,8 @@ const mostrar_diagnosticos_por_tecnico = async (req, res) => {
              FROM t_registro_diagnosticos d 
              LEFT JOIN t_imagenes_por_diagnosticos ipd ON d.cn_id_diagnostico = ipd.cn_id_diagnostico
              LEFT JOIN t_imagenes img ON ipd.cn_id_imagen = img.cn_id_imagen 
-             WHERE d.cn_id_usuario = ?`, 
-             [cn_id_usuario]
+             WHERE d.cn_id_usuario = ?`,
+            [cn_id_usuario]
         );
 
         const diagnosticos = results.map(diagnostico => ({
@@ -97,7 +100,7 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
             throw new Error('ct_id_incidencia no encontrado en la URL ni en el cuerpo de la solicitud');
         }
         connection = await database.getConnection();
-        
+
         const diagnosticosResult = await connection.query(
             `SELECT d.*, 
                     u.ct_nombre_completo, 
@@ -121,7 +124,7 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
             );
 
             const imagenes = imagenesResult.map(img => img.cb_imagen ? img.cb_imagen.toString('base64') : null);
-            
+
             return {
                 ...diagnostico,
                 imagenes
@@ -129,7 +132,7 @@ const mostrar_diagnosticos_por_id_incidencia = async (req, res) => {
         });
 
         const resolvedDiagnosticos = await Promise.all(diagnosticos);
-        
+
         res.json(resolvedDiagnosticos);
     } catch (error) {
         console.error("Error:", error);
@@ -221,7 +224,22 @@ const registrar_diagnosticos = async (req, res) => {
 
         await connection.commit();
 
-        res.json({ message: 'Diagnóstico registrado exitosamente', diagnostico: diagnosticoResult });
+        // Obtener el correo del usuario y enviar el correo
+        const userEmail = await obtener_email_usuario(cn_id_usuario);
+        if (userEmail) {
+            await emailService.sendEmail(
+                userEmail,
+                'Diagnóstico registrado',
+                `Se ha registrado un nuevo diagnóstico con ID ${cn_id_diagnostico} para la incidencia con ID ${ct_id_incidencia}.`,
+                `<p>Se ha registrado un nuevo diagnóstico con ID ${cn_id_diagnostico} para la incidencia con ID ${ct_id_incidencia}.</p>
+                 <p>Diagnóstico: ${ct_diagnostico}</p>
+                 <p>Tiempo estimado de reparación: ${cn_tiempo_estimado_reparacion}</p>
+                 <p>Observaciones: ${ct_observaciones}</p>
+                 <p>Fecha y hora del diagnóstico: ${cf_fecha_hora_diagnostico}</p>`
+            );
+        }
+
+        res.json({ message: 'Diagnóstico registrado exitosamente y correo enviado.', diagnostico: diagnosticoResult });
     } catch (error) {
         if (connection) await connection.rollback();
         console.error("Error:", error);

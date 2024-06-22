@@ -4,7 +4,7 @@ const mostrar_tecnicos = async (req, res) => {
     let connection;
     try {
         connection = await database.getConnection();
-        
+
         const query = `
             SELECT usr.*, COALESCE(asignaciones.cantidad, 0) as cantidad_asignaciones
             FROM t_usuarios usr
@@ -17,7 +17,7 @@ const mostrar_tecnicos = async (req, res) => {
             WHERE upr.cn_id_rol = 4
             ORDER BY cantidad_asignaciones ASC
         `;
-        
+
         const results = await connection.query(query);
 
         const usuarios = results.map(usuario => ({
@@ -44,11 +44,11 @@ const mostrar_usuarios = async (req, res) => {
     let connection;
     try {
         connection = await database.getConnection();
-        
+
         const query = `
             SELECT * from t_usuarios
         `;
-        
+
         const results = await connection.query(query);
 
         res.json(results);
@@ -64,11 +64,18 @@ const mostrar_usuarios = async (req, res) => {
             }
         }
     }
-  };
+};
 
+const obtener_email_usuario = async (cn_id_usuario) => {
+    const connection = await database.getConnection();
+    const rows = await connection.query('SELECT ct_correo_institucional FROM t_usuarios WHERE cn_id_usuario = ?', [cn_id_usuario]);
+    connection.release();
+    return rows.length ? rows[0].ct_correo_institucional : null;
+};
 
 
 module.exports = {
     mostrar_tecnicos,
-    mostrar_usuarios
+    mostrar_usuarios,
+    obtener_email_usuario
 };

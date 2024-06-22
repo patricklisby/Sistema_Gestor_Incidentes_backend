@@ -1,6 +1,9 @@
 const database = require("../database");
 const multer = require("multer");
 
+const emailService = require('../emailService');
+const { obtener_email_usuario } = require('./usuarios_Controller');
+
 // Configuración de almacenamiento en memoria para multer
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).array('images', 10); // Permite hasta 10 imágenes
@@ -226,7 +229,22 @@ const registrar_incidencias = async (req, res) => {
 
         await connection.commit();
 
-        res.json({ message: 'Incidencia registrada exitosamente', incidencia: incidenciaResult });
+        // Obtener el correo del usuario y enviar el correo
+        const userEmail = await obtener_email_usuario(cn_id_usuario_registro);
+        if (userEmail) {
+            await emailService.sendEmail(
+                userEmail,
+                'Incidencia registrada',
+                `Tu incidencia con ID ${ct_id_incidencia} ha sido registrada con éxito.`,
+                `<p>Tu incidencia con ID ${ct_id_incidencia} ha sido registrada con éxito.</p>
+                 <p>Título: ${ct_titulo_incidencia}</p>
+                 <p>Descripción: ${ct_descripcion_incidencia}</p>
+                 <p>Lugar: ${ct_lugar}</p>
+                 <p>Fecha: ${cf_fecha_completa_incidencia}</p>`
+            );
+        }
+
+        res.json({ message: 'Incidencia registrada exitosamente y correo enviado.', incidencia: incidenciaResult });
     } catch (error) {
         if (connection) await connection.rollback();
         console.error("Error:", error);
@@ -284,6 +302,18 @@ const editar_incidencia = async (req, res) => {
         );
 
         await connection.commit();
+        const userEmail = await obtener_email_usuario(cn_id_usuario_registro);
+        if (userEmail) {
+            await emailService.sendEmail(
+                userEmail,
+                'Incidencia completada, lista para asignar',
+                `Tu incidencia con ID ${ct_id_incidencia} ha sido completada con éxito.`,
+                `<p>Tu incidencia con ID ${ct_id_incidencia} ha sido completada con éxito.</p>
+                 <p>Título: ${ct_titulo_incidencia}</p>
+                 <p>Descripción: ${ct_descripcion_incidencia}</p>
+                 <p>Lugar: ${ct_lugar}</p>`
+            );
+        }
 
         res.json({ message: 'Incidencia editada exitosamente', incidencia: incidenciaResult });
     } catch (error) {
@@ -358,6 +388,13 @@ const asignar_incidencias = async (req, res) => {
         }
 
         await connection.commit();
+        const userEmail = await obtener_email_usuario(cn_id_usuario);
+        if (userEmail) {
+            await emailService.sendEmail(
+                userEmail,
+                'Te han asignado una incidencia, ingresa a la plataforma para revisarla',
+            );
+        }
         res.json({ message: 'Incidencia asignada y estado actualizado exitosamente', result });
     } catch (error) {
         if (connection) await connection.rollback();
