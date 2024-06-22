@@ -15,8 +15,6 @@ const guardar_imagen = async (req, res) => {
             "INSERT INTO t_imagenes (ct_direccion_imagen, cb_imagen) VALUES (?, ?)",
             [originalname, buffer]
         );
-
-        console.log(result);
         res.json(result);
     } catch (error) {
         console.error("Error:", error);
@@ -45,7 +43,6 @@ const mostrar_imagenes = async (req, res) => {
             cb_imagen: image.cb_imagen.toString('base64')
         }));
 
-        console.log(images);
         res.json(images);
     } catch (error) {
         console.error("Error:", error);
